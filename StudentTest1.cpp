@@ -18,7 +18,7 @@ TEST_CASE("Fraction object initialization & Getters return expected values") {
     // Check that the int constractor's fields are like expected. Also checks the getters
     CHECK(((a.getNumerator() == 1) && (a.getDenominator() == 2)));
 
-    // Che  ck that the float constractor's fields are like expected
+    // Check that the float constractor's fields are like expected
     Fraction b(0.3333);
     CHECK(((b.getNumerator() == 333) && (b.getDenominator() == 1000)));
 

@@ -5,34 +5,23 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <iomanip>
+#include <limits>
 
-class Person {
-private:
-    std::string name;
-    int age;
-public:
-    Person(std::string name, int age) : name(name), age(age) {}
-    friend std::ostream& operator<<(std::ostream& os, const Person& person) {
-        os << "Name: " << person.name << ", Age: " << person.age;
-        return os;
-    }
-};
+int d(float w ){
+    std::cout << std::fixed << std::setprecision(2) << w << std::endl;
+    return 0;
+}
 
 int main() {
-    Fraction a(2, 5);
-    float b = 0.2001; // During the "+" operation it'll became 0.200, which is 1/5
-    Fraction c = a + b; // 2/5 + 1/5 = 3/5
-    cout<<(((c.getNumerator() == 3) && (c.getDenominator() == 5)))<< endl ;
+    int max_int = std::numeric_limits<int>::max();
+    int min_int = std::numeric_limits<int>::min();
+    Fraction f1(max_int, 1);
 
-    b = 0.2001;
-    c = a - b; // 1/5
-    cout<<(((c.getNumerator() == 1) && (c.getDenominator() == 5)))<< endl ;
+    // Test arithmetic with large numerator and/or denominator
+    Fraction f4(max_int - 100, max_int);
 
-    b = 0.2001;
-    c = a * b; // 2/25
-    cout<<(((c.getNumerator() == 2) && (c.getDenominator() == 25)))<< endl ;
+    (f1 * f4);
+    (f1 / f4);
 
-    b = 0.2001;
-    c = a / b; // 2/1
-    cout<<(((c.getNumerator() == 2) && (c.getDenominator() == 1)))<< endl ;
 }

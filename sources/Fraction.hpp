@@ -6,11 +6,15 @@
 #define INC_3B_FRACTION_HPP
 
 #include <iostream>
+#include <limits>
 #include <cmath>
 namespace ariel{
 
 }
 using namespace std;
+
+#define EPS 0.0001;
+#define THOUSEND 1000;
 class Fraction {
 
 private:
@@ -19,46 +23,56 @@ private:
 public:
     Fraction(int numerator, int denominator) : numerator(numerator), denominator(denominator) {
         if (this->denominator == 0)
-            throw "deominator cant be 0";
+        {
+            throw std::invalid_argument("");
+        }
+        int gcd = _gcd(numerator , denominator);
+        this->numerator = numerator / gcd;
+        this->denominator= denominator / gcd;
+
     }
+    void set(float number);
 
-    //cout <<   << endl ;
-    Fraction(float number) {
-
-        number  = roundf(number * 1000) / 1000;  /// round to 3 strong digits
-        this->numerator = number * 1000;
-        this->denominator = 1000;
+    Fraction(): numerator(-1), denominator(-1){}
+    Fraction(float number) : numerator(-1) ,denominator(-1) {
+        this->set(number);
+    }
+    /// reduced function
+    void red(){
+        int gcd = _gcd(numerator , this->denominator);
+        this->numerator = this->numerator/ gcd;
+        this->denominator = this->denominator/ gcd;
     }
     ///plus
-    Fraction operator+(float x);
-    friend Fraction operator+(Fraction x1, Fraction x2);
+    friend Fraction operator+(const Fraction& , const Fraction& );
+    Fraction operator+(float   );
+    friend Fraction operator+(float  , const Fraction&  );
     /// minus
-    friend Fraction operator-(Fraction& plus, Fraction& minus);
-    Fraction operator-(float x);
-    friend  Fraction operator-(float  x , Fraction frac);
+    friend Fraction operator-(const Fraction& , const Fraction& );
+    Fraction operator-(float );
+    friend  Fraction operator-(float   , const Fraction& );
     ///mul
-    friend Fraction operator*(Fraction& f1, Fraction& f2);
-    friend Fraction operator *(float , Fraction );
-    friend Fraction operator *(Fraction , float );
+    friend Fraction operator*(const Fraction& , const Fraction& );
+    friend Fraction operator *(float , const Fraction &);
    ///divide
-    Fraction operator/(Fraction& other) const;
-    friend Fraction operator /(float , Fraction );
-    friend Fraction operator /(Fraction , float );
+    Fraction operator/(const Fraction& ) const;
+    friend Fraction operator /(float , const Fraction & );
+    friend Fraction operator /(const Fraction & , float );
     /// < , <=  , > , >=
     ///<=
-    bool operator <= (Fraction const & other) const;
-    friend bool operator<=(float x , Fraction const& f);
+    bool operator <= (Fraction const &) const;
+    friend bool operator<=(float , Fraction const& );
     /// >
-    bool operator > (Fraction const &other ) const;
-    friend bool operator>(float x , Fraction const& f);
+    bool operator > (Fraction const & ) const;
+    friend bool operator>(float  , Fraction const& );
     /// <
     bool operator<(Fraction const &other) const;
-    friend bool operator<(float x , Fraction const& f);
+    friend bool operator<(float, Fraction const& );
     /// >=
-    friend bool operator>=(float x , Fraction const& f);
-    bool operator >= (Fraction const& other) const;
+    friend bool operator>=(float  ,const Fraction & );
+    bool operator >= (Fraction const&) const;
     /// ==
-    friend bool operator == (Fraction const&  f1, Fraction const& other) ;
+    friend bool operator == (Fraction const&  , Fraction const& ) ;
     /// ++
     Fraction& operator ++ ();
     Fraction operator ++ (int);
@@ -66,11 +80,11 @@ public:
     Fraction& operator -- ();
     Fraction operator -- (int);
     /// <<
-    friend ostream& operator << (ostream& o , Fraction f);
+    friend ostream& operator << (ostream&  ,  Fraction & );
     /// >>
-    friend void operator >> (istream & o , Fraction f);
-
-
+    friend istream & operator >> (istream &  ,  Fraction&  );
+    /// reduce
+    static int _gcd(  long long ,   long long ) ;
     int getDenominator() const {
         return this->denominator;
     }
@@ -81,7 +95,7 @@ public:
 
 
 };
-int __gcd(int a, int b);
+
 
 
 #endif //INC_3B_FRACTION_HPP

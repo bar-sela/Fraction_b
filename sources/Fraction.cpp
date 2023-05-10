@@ -1,10 +1,43 @@
 #include "Fraction.hpp"
 #include "iostream"
 #include "algorithm"
+#include <sstream>
 
+/////// help functions
+int MAX_INT(){
+    return std::numeric_limits<int>::max();
+}
+int MIN_INT(){
+    return std::numeric_limits<int>::min();
+}
+void overFlowCheak(long long num){
+    if(num > MAX_INT())
+        throw std::overflow_error("to BIG number");
+    if(num < MIN_INT())
+        throw std::overflow_error("to SMALL number");
+}
+bool isInteger(const std::string& str) {
+    if(str.find('.') == 1)
+        return false;
+    try {
+        std::stoi(str);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+void Fraction::set(float number)
+{
+    float eps = EPS;
+    number =number +eps;
+    float Thousend = THOUSEND;
+    number= floor(number*Thousend);
+    this->numerator =  (int)number;
+    this->denominator = THOUSEND;
+}
 
-int __gcd(int a, int b) {
-    int temp = a ;
+int Fraction::_gcd(  long long a,   long long b) {
+    int temp = (int)a ;
     if (b > a ){ /// swap
         a = b ;
         b = temp;
@@ -12,30 +45,39 @@ int __gcd(int a, int b) {
     a = abs(a); /// for negative values
     b= abs(b);
     if (b == 0)
-        return a;
+        return (int)a;
     else
         return __gcd(b, (a % b));
 }
-
-Fraction operator+(Fraction x1, Fraction x2) {
-    int newX1N = x1.getNumerator() *  x2.getDenominator();
-    int newX2N = x2.getNumerator() *  x1.getDenominator();
-    int  sumOfNewN =    newX1N + newX2N ;
-    int gcD = __gcd(sumOfNewN, x1.getDenominator() * x2.getDenominator());
-    return Fraction(sumOfNewN/gcD , (x1.getDenominator() * x2.getDenominator())/gcD);
+///////// operators
+Fraction operator+(const Fraction &x1,const Fraction& x2) {
+     long long newX1N =  ( long long)x1.numerator *   ( long long)x2.denominator;
+     long long newX2N =  ( long long)x2.numerator *   ( long long)x1.denominator;
+     long long mulDeno = x1.denominator* x2.denominator;
+     long long sumOfNewN =  newX1N + newX2N ;
+    overFlowCheak(sumOfNewN);
+    overFlowCheak(mulDeno);
+    return Fraction(sumOfNewN , mulDeno);
+}
+Fraction Fraction::operator+(float f) {
+    Fraction fFrac = Fraction(f);
+    return *this + fFrac;
+}
+Fraction operator+(float  x1, const Fraction& frac) {
+    Fraction frac_x1 = Fraction(x1);
+    return frac + frac_x1 ;
 }
 
-Fraction Fraction::operator+(float x) {
-    Fraction newFraction(x);
-    return (*this + newFraction);
-}
 
-Fraction operator-(Fraction& plus, Fraction& minus) {
-    int newX1N =  plus.getNumerator() *  minus.getDenominator();
-    int newX2N = minus.getNumerator() *  plus.getDenominator();
-    int  subtractOfNewN =    newX1N - newX2N ;
-    int gcD = __gcd((subtractOfNewN), plus.getDenominator() *minus.getDenominator());
-    Fraction ans =  Fraction(subtractOfNewN/gcD , (plus.getDenominator() * minus.getDenominator())/gcD);
+
+Fraction operator-(const Fraction& plus, const Fraction& minus) {
+    long long newX1N = ( long long)plus.numerator*  ( long long)minus.denominator;
+    long long newX2N =  ( long long)minus.numerator *  ( long long)plus.denominator;
+    long long mulDeno = plus.denominator *minus.denominator;
+    long  long subtractOfNewN =    newX1N - newX2N ;
+    overFlowCheak(mulDeno);
+    overFlowCheak(subtractOfNewN);
+    Fraction ans =  Fraction(subtractOfNewN , mulDeno);
     return ans;
 }
 
@@ -44,47 +86,44 @@ Fraction Fraction::operator-(float x) {
     return (*this - represetX);
 }
 
-Fraction operator-(float x, Fraction frac) {
+Fraction operator-(float x, const Fraction& frac) {
     Fraction represetX = Fraction(x);
     return (represetX - frac);
 }
 
-Fraction operator*(Fraction &f1, Fraction &f2) {
-    int mulNUM = f1.numerator * f2.numerator;
-    int mulDEN = f1.denominator * f2.denominator;
-    int gcD = __gcd(mulDEN, mulNUM);
-    Fraction ans = Fraction(mulNUM / gcD , mulDEN / gcD);
+Fraction operator*(const Fraction& f1,const  Fraction &f2) {
+    long long mulNUM = (long long )f1.numerator * (long long )f2.numerator;
+    long long mulDEN = (long long )f1.denominator * (long long )f2.denominator;
+    overFlowCheak(mulDEN);   /// if there is an error it will throw exeption inside overFlowCheak
+    overFlowCheak(mulNUM);
+    Fraction ans = Fraction(mulNUM  , mulDEN );
     return ans;
 }
 
-
-
-Fraction operator*(float x,Fraction f) {
+Fraction operator*(float x,const Fraction& f) {
     Fraction x_frac = Fraction(x);
     return (f * x_frac);
 }
 
-Fraction operator*(Fraction f, float x) {
-    return (x * f) ;
-}
 /// divied
-Fraction Fraction::operator/(Fraction &other) const {
-    if(other.denominator == 0)
-        throw ;
-    int mulNUM = this->numerator * other.denominator;
-    int mulDEN = this->denominator * other.numerator;
-    int gcD = __gcd(mulDEN, mulNUM);
-    Fraction ans = Fraction(mulNUM / gcD , mulDEN / gcD);
+Fraction Fraction::operator/(const Fraction& other) const{
+    if(other.numerator == 0)
+        throw std::runtime_error("");
+    long  long  mulNUM = (long long)this->numerator * (long long)other.denominator;
+    long  long  mulDEN = (long long)this->denominator * (long  long )other.numerator;
+    overFlowCheak(mulNUM);
+    overFlowCheak(mulDEN);
+    Fraction ans = Fraction(mulNUM  , mulDEN );
     return ans;
 }
-Fraction operator/(float x, Fraction f ) {
-    Fraction x_frac = Fraction(x);
-    return(x_frac / f);
+Fraction operator /(float f, const Fraction & x ) {
+    Fraction x_frac = Fraction(f);
+    return(x_frac / x );
 }
 
-Fraction operator/(Fraction f, float x ) {
-    Fraction x_frac = Fraction(x);
-    return (f / x_frac);
+Fraction operator /(const Fraction &x , float f ){
+    Fraction x_frac = Fraction(f);
+    return( x / x_frac);
 }
 /// < , <= , >= , >
 bool Fraction::operator<(Fraction const &other) const {
@@ -143,7 +182,7 @@ Fraction& Fraction::operator++() {
 
 Fraction Fraction::operator++(int) {
     Fraction ans = *this;
-    *this = *this +1 ;
+    *this = *this + 1 ;
     return ans ;
 }
 
@@ -158,26 +197,35 @@ Fraction Fraction::operator--(int) {
     return ans ;
 }
 
-ostream &operator<<(ostream &ostream, Fraction f) {
+ostream & operator<<(ostream &ostream,  Fraction & f) {
+    if((f.numerator < 0 && f.denominator > 0 ) || (f.denominator < 0 && f.numerator > 0  ))
+        ostream << "-";
+    f.numerator = abs( f.numerator);
+    f.denominator = abs( f.denominator);
+    f.red();
     ostream << f.numerator << "/" << f.denominator;
     return ostream;
 }
+static int correctInput(istream& in) {
+    string reader;
+    in >> reader;
+    int num ;
+    num = isInteger(reader);   /// returnes True Or False
+    if(num)
+        return stoi(reader);
+    throw std::runtime_error("") ;
+    }
 ///https://www.geeksforgeeks.org/isdigit-function-in-c-cpp-with-examples/
 ///https://www.geeksforgeeks.org/basic_istreamoperator-in-c/
-void operator>>(istream &in, Fraction f) {
-           if(isdigit(in.peek()))
-               in >> f.numerator ;
-           if( !in.eof() && isdigit(in.peek()))
-               in >> f.denominator;
-           else
-               throw;
+istream &operator>>(istream& in,  Fraction & f ){
+         string final_input;
+         f.numerator = correctInput(in );
+         int den  = correctInput(in);
+         if(den == 0 )
+             throw std::runtime_error("");
+         f.denominator = den;
+         return in;
 }
-//operator to read a fraction from an input stream by taking two integers as input.
-
-
-
-
-
 
 
 
